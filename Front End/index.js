@@ -20,7 +20,19 @@ form.addEventListener('submit', function(event) {
         delBtn.parentElement.remove();
     });
 
+    let editBtn = document.createElement("button");
+    editBtn.textContent = "Edit";
+    editBtn.style.marginLeft = "10px";
+
+    editBtn.addEventListener("click", function() {
+        form.expAmount.value = expAmount;
+        form.description.value = description;
+        form.category.value = category;
+        li.remove();
+    });
+
     li.appendChild(delBtn);
+    li.appendChild(editBtn);
     list.appendChild(li);
     form.reset();
 });
