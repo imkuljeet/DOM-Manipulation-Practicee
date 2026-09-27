@@ -94,5 +94,30 @@ exports.getExpenses = async (req, res) => {
   }
 };
 
+exports.getExpenses = async (req, res) => {
+  try {
+      const page = parseInt(req.query.page) || 1;   // current page
+      const limit = parseInt(req.query.limit) || 3; // items per page
+      const offset = (page - 1) * limit;
+
+      const { count, rows } = await Expense.findAndCountAll({
+          limit,
+          offset,
+          order: [["createdAt", "DESC"]] // newest first
+      });
+
+      res.json({
+          totalItems: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+          expenses: rows
+      });
+  } catch (err) {
+      console.error("❌ Error fetching expenses:", err);
+      res.status(500).json({ error: "Server error" });
+  }
+};
+
+
 
 
