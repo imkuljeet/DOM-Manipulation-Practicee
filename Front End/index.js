@@ -1,6 +1,8 @@
 const form = document.getElementById("expenseForm");
 const list = document.getElementById("ourlist");
 
+let editingId = null; // track which expense is being edited
+
 form.addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -9,14 +11,25 @@ form.addEventListener('submit', async function(event) {
     let category = event.target.category.value;
 
     try {
-        // Send data to backend using Axios POST
-        const response = await axios.post("http://localhost:3000/expenses", {
-            expAmount,
-            description,
-            category
-        });
+        let response;
+        if (editingId) {
+            // Update existing expense
+            response = await axios.put(`http://localhost:3000/expenses/${editingId}`, {
+                expAmount,
+                description,
+                category
+            });
+            editingId = null; // reset after update
+            form.querySelector("button[type='submit']").textContent = "Add Expense";
+        } else {
+            // Create new expense
+            response = await axios.post("http://localhost:3000/expenses", {
+                expAmount,
+                description,
+                category
+            });
+        }
 
-        // Get saved expense from backend response
         const savedExpense = response.data;
 
         let li = document.createElement("li");
@@ -42,6 +55,8 @@ form.addEventListener('submit', async function(event) {
             form.expAmount.value = savedExpense.expAmount;
             form.description.value = savedExpense.description;
             form.category.value = savedExpense.category;
+            editingId = savedExpense.id; // mark this expense for update
+            form.querySelector("button[type='submit']").textContent = "Update Expense";
             li.remove();
         });
 
@@ -84,6 +99,8 @@ document.addEventListener("DOMContentLoaded", async function() {
                 form.expAmount.value = savedExpense.expAmount;
                 form.description.value = savedExpense.description;
                 form.category.value = savedExpense.category;
+                editingId = savedExpense.id;
+                form.querySelector("button[type='submit']").textContent = "Update Expense";
                 li.remove();
             });
 
@@ -95,4 +112,3 @@ document.addEventListener("DOMContentLoaded", async function() {
         console.error("Error fetching expenses:", error);
     }
 });
-

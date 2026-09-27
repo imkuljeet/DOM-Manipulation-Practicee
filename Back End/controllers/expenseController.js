@@ -52,4 +52,28 @@ exports.deleteExpense = async (req, res) => {
     }
 };
 
+exports.updateExpense = async (req, res) => {
+    try {
+        const expenseId = req.params.id;
+        const { expAmount, description, category } = req.body;
+
+        const expense = await Expense.findByPk(expenseId);
+        if (!expense) {
+            return res.status(404).json({ error: "Expense not found" });
+        }
+
+        expense.expAmount = expAmount;
+        expense.description = description;
+        expense.category = category;
+
+        await expense.save();
+
+        console.log(`✅ Expense updated: ID ${expenseId}`);
+        res.status(200).json(expense);
+    } catch (err) {
+        console.error("❌ Error updating expense:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
 
