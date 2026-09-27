@@ -3,6 +3,64 @@ const list = document.getElementById("ourlist");
 
 let editingId = null; // track which expense is being edited
 
+const filterBtn = document.getElementById("filterBtn");
+const filterCategoryInput = document.getElementById("filterCategory");
+
+filterBtn.addEventListener("click", async function() {
+    try {
+        const category = filterCategoryInput.value.trim();
+
+        if (!category) {
+            alert("Please enter a category to filter");
+            return;
+        }
+
+        // Fetch filtered expenses from backend
+        const response = await axios.get(`http://localhost:3000/expenses?category=${category}`);
+        const expenses = response.data;
+
+        // Clear current list
+        list.innerHTML = "";
+
+        // Render filtered expenses
+        expenses.forEach(savedExpense => {
+            let li = document.createElement("li");
+            let text = document.createTextNode(
+                `Amount: ${savedExpense.expAmount} | Description: ${savedExpense.description} | Category: ${savedExpense.category}`
+            );
+            li.appendChild(text);
+
+            let delBtn = document.createElement("button");
+            delBtn.textContent = "Delete";
+            delBtn.style.marginLeft = "10px";
+
+            delBtn.addEventListener("click", async function() {
+                await axios.delete(`http://localhost:3000/expenses/${savedExpense.id}`);
+                li.remove();
+            });
+
+            let editBtn = document.createElement("button");
+            editBtn.textContent = "Edit";
+            editBtn.style.marginLeft = "10px";
+
+            editBtn.addEventListener("click", function() {
+                form.expAmount.value = savedExpense.expAmount;
+                form.description.value = savedExpense.description;
+                form.category.value = savedExpense.category;
+                editingId = savedExpense.id;
+                form.querySelector("button[type='submit']").textContent = "Update Expense";
+                li.remove();
+            });
+
+            li.appendChild(delBtn);
+            li.appendChild(editBtn);
+            list.appendChild(li);
+        });
+    } catch (error) {
+        console.error("Error filtering expenses:", error);
+    }
+});
+
 form.addEventListener('submit', async function(event) {
     event.preventDefault();
 

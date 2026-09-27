@@ -76,4 +76,23 @@ exports.updateExpense = async (req, res) => {
     }
 };
 
+exports.getExpenses = async (req, res) => {
+  try {
+      const { category } = req.query;
+      let expenses;
+
+      if (category) {
+          expenses = await Expense.findAll({ where: { category } });
+      } else {
+          expenses = await Expense.findAll();
+      }
+
+      res.json(expenses);
+  } catch (err) {
+      console.error("❌ Error fetching expenses:", err);
+      res.status(500).json({ error: "Server error" });
+  }
+};
+
+
 
