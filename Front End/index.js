@@ -54,3 +54,45 @@ form.addEventListener('submit', async function(event) {
         console.error("Error saving expense:", error);
     }
 });
+
+document.addEventListener("DOMContentLoaded", async function() {
+    try {
+        const response = await axios.get("http://localhost:3000/expenses");
+        const expenses = response.data;
+
+        expenses.forEach(savedExpense => {
+            let li = document.createElement("li");
+            let text = document.createTextNode(
+                `Amount: ${savedExpense.expAmount} | Description: ${savedExpense.description} | Category: ${savedExpense.category}`
+            );
+            li.appendChild(text);
+
+            let delBtn = document.createElement("button");
+            delBtn.textContent = "Delete";
+            delBtn.style.marginLeft = "10px";
+
+            delBtn.addEventListener("click", async function() {
+                await axios.delete(`http://localhost:3000/expenses/${savedExpense.id}`);
+                li.remove();
+            });
+
+            let editBtn = document.createElement("button");
+            editBtn.textContent = "Edit";
+            editBtn.style.marginLeft = "10px";
+
+            editBtn.addEventListener("click", function() {
+                form.expAmount.value = savedExpense.expAmount;
+                form.description.value = savedExpense.description;
+                form.category.value = savedExpense.category;
+                li.remove();
+            });
+
+            li.appendChild(delBtn);
+            li.appendChild(editBtn);
+            list.appendChild(li);
+        });
+    } catch (error) {
+        console.error("Error fetching expenses:", error);
+    }
+});
+

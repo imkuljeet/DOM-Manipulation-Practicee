@@ -1,6 +1,4 @@
 const Expense = require("../models/Expense");
-
-// Add Expense Controller
 exports.addExpense = async (req, res) => {
     try {
         const { expAmount, description, category } = req.body;
@@ -24,3 +22,14 @@ exports.addExpense = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
+
+exports.getExpenses = async (req, res) => {
+  try {
+    const expenses = await Expense.findAll();
+    res.json(expenses);
+  } catch (err) {
+    console.error("❌ Error fetching expenses:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
